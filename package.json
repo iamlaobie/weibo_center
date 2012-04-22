@@ -1,0 +1,21 @@
+{
+    "name": "netgen_weibo_center",
+    "version": "0.1.0",
+    "description": "send micro blog to weibo.com",
+    "author": "iamlaobie <iamlaobie@gmail.com>",
+    "dependencies": {
+        "mysql": ">= 0.9.5",
+        "oauth":"0.9.5",
+        "weibo":"https://github.com/iamlaobie/node-weibo/tarball/master",
+        "async":">=0.1.15",
+        "underscore":">=1.2.3",
+        "redis":"",
+        "express":""
+    },
+    "scripts": {
+        "start": "node send.js"
+    },
+    "engines": {
+        "node": "0.6.x"
+    }
+}

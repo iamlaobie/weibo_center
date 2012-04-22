@@ -1,0 +1,18 @@
+{
+	"redis":{
+		"port":6379,
+		"host":"localhost",
+		"db":1
+	},
+	"log":"receive.log",
+	"queue":{
+		"name":"weibo_task",
+		"pollInterval":2000
+	},
+	"apis":{
+		"tsina":{
+			"appkey":"4054929016",
+			"secret":"d71d334237989dc8e544532108a09aae"
+		}
+	}
+}
