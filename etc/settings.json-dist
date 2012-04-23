@@ -4,6 +4,12 @@
 		"host":"localhost",
 		"db":1
 	},
+	"mysql":{
+		"host":"localhost",
+		"user":"root",
+		"password":"123456",
+		"database":"weibo_center"
+	},
 	"log":"receive.log",
 	"queue":{
 		"name":"weibo_task",

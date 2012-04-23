@@ -37,7 +37,6 @@ app.post('/weibo/:action', function(req, res){
 		data.accountId = id;
 		taskQueue.push(data);	
 	});
-		
 	var log = action + "\t" + data.appId + "\t" + data.accountIds + "\t" + data.text + "\t" + taskId;
 	logger.info(log);
 });
