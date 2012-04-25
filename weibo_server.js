@@ -3,10 +3,13 @@ var express = require('express');
 var Queue = require('./lib/queue').Queue;
 var tool = require('./lib/tool');
 var logger = require('./lib/logger').logger(settings.log);
+var redis = require("redis");
+redis.createClient(settings.redis.port, settings.redis.host);
+var redisClient = redis.select(settings.redis.db);
 
 var validator = require('./lib/validator');
 
-var taskQueue = new Queue(settings);
+var taskQueue = new Queue(settings.taskQueue.name, redisClient);
 
 var app = express.createServer();
 app.use(express.bodyParser());
