@@ -9,8 +9,10 @@ worker.on("finish", function(context){
 	console.log(context);
 });
 
-var task = {accountId:'10000', action:"update", status:"this is a test"};
+var task = {taskId:'12434235435436546546',accountId:'10000', fromApp:'stockRadar', action:"update", status:"this is a test too too too too too too too"};
 worker.on('ready', function(){
-	worker.work(task, {});	
+	worker.work(task, function(err){
+		console.log('aaaa');
+	});	
 });
 

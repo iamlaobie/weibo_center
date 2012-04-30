@@ -40,7 +40,7 @@ app.post('/weibo/:action', function(req, res){
 		data.accountId = id;
 		taskQueue.push(data);	
 	});
-	var log = action + "\t" + data.appId + "\t" + data.accountIds + "\t" + data.text + "\t" + taskId;
+	var log = action + "\t" + data.appId + "\t" + data.accountIds + "\t" + data.status + "\t" + taskId;
 	logger.info(log);
 });
 app.listen(8080);

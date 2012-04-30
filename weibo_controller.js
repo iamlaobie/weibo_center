@@ -9,24 +9,27 @@ var finishLogger = require('./lib/logger').logger("finish.log");
 
 //task queue
 var taskQueue = new Queue(settings.taskQueue.name, redisClient);
+var reportQueue = new Queue(settings.reportQueue.name, redisClient);
 
 var Worker = require("../lib/worker");
 var worker = new Worker(settings);
 worker.on('error', function(error, context){
-	if(task.retry >= settings.retry){
-		runLog(err, context);
-	}else{
+	if(error.retry && task.retry < settings.retry){
 		task.retry += 1;
 		taskQueue.push(task);
+	}else{
+		runLog(err, context);
 	}
 });
 
 
 worker.on("finish", function(context){
-	finish(context);
+	runLog(null, context);
 	getTask();
+	reportQueue.push(context);
 });
 var aq = async.queue(worker.work, 5);
+
 var getTask = function(){
 	if(aq.length >= 5){
 		return;
@@ -42,22 +45,28 @@ var getTask = function(){
 		aq.push(task);
 	});
 }
-worker.on('task', function(){
+taskQueue.on('hasTask', function(){
 	getTask();
 });
 
-var runLog = function(err, task){
-	task = task || {};
-	task.taskId = task.taskId || '-';
-	task.action = task.action || '-';
-	task.accountId = task.accountId || '-';
-	task.weiboId = task.weiboId || '-';
-	task.status = task.status || '-';
-	var log = [task.action, task.taskId, task.accountId, task.weiboId, task.status, err.message].join("\t");
-	runLog.info(log);
-}
 
-var finish = function(context){
+var runLog = function(err, context){
+	var result = err ? 'ERROR' : 'SUCCESS';
+	context = context || {};
 	var resp = context.response;
-	var weiboId = resp.id;
+	var task = context.task;
+	var account = context.account; 
+	task = task || {};
+	var taskId = task.taskId || '-';
+	var action = task.action || '-';
+	var img = task.img || '-';
+	var accountId = account.id || '-';
+	var weiboId = task.weiboId || '-';
+	var status = task.status || '-';
+	var newId = resp.id || '-';
+	var msg = err ? err.message : '-';
+	
+	var log = [result, action, taskId, accountId, weiboId, 
+				newId, status, img, msg].join("\t");
+	runLog.info(log);
 }
