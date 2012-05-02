@@ -1,25 +1,30 @@
 var settings = require("./etc/settings.json");
-var Queue = require('./lib/queue');
-var async = require('aysnc');
+var tool = require("./lib/tool");
+var Queue = require('./lib/queue').Queue;
+var async = require('async');
 var redis = require("redis");
-redis.createClient(settings.redis.port, settings.redis.host);
-var redisClient = redis.select(settings.redis.db);
+var redisClient = redis.createClient(settings.redis.port, settings.redis.host);
+redisClient.select(settings.redis.db);
 var runLogger = require('./lib/logger').logger("run.log");
-var finishLogger = require('./lib/logger').logger("finish.log");
 
 //task queue
 var taskQueue = new Queue(settings.taskQueue.name, redisClient);
 var reportQueue = new Queue(settings.reportQueue.name, redisClient);
 
-var Worker = require("../lib/worker");
+var Worker = require("./lib/worker");
 var worker = new Worker(settings);
-worker.on('error', function(error, context){
-	if(error.retry && task.retry < settings.retry){
+worker.on('error', function(err, context){
+	console.log([err, context]);
+	if(err.retry && task.retry < settings.retry){
 		task.retry += 1;
 		taskQueue.push(task);
 	}else{
 		runLog(err, context);
+		context.err = err;
+		delete context.account;
+		reportQueue.push(context);
 	}
+	getTask();
 });
 
 
@@ -39,6 +44,11 @@ var getTask = function(){
 			runLog(err);
 			return;
 		}
+
+		if(!task){
+			return;
+		}
+
 		if(typeof task.retry == 'undefined'){
 			task.retry = 0;
 		}
@@ -53,20 +63,24 @@ taskQueue.on('hasTask', function(){
 var runLog = function(err, context){
 	var result = err ? 'ERROR' : 'SUCCESS';
 	context = context || {};
-	var resp = context.response;
-	var task = context.task;
-	var account = context.account; 
+	var resp = context.response || {};
+	var task = context.task || {};
+	var account = context.account || {};;  
 	task = task || {};
 	var taskId = task.taskId || '-';
 	var action = task.action || '-';
 	var img = task.img || '-';
-	var accountId = account.id || '-';
+	var accountId = task.accountId || '-';
 	var weiboId = task.weiboId || '-';
 	var status = task.status || '-';
 	var newId = resp.id || '-';
 	var msg = err ? err.message : '-';
+	var fromApp = task.fromApp || '-'
+
+	status = decodeURI(status);
 	
-	var log = [result, action, taskId, accountId, weiboId, 
+	var log = [result, action, fromApp, taskId, accountId, weiboId, 
 				newId, status, img, msg].join("\t");
-	runLog.info(log);
+	runLogger.info(log);
 }
+console.log("weibo task controller start at " + tool.getDateString());
