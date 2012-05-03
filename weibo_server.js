@@ -1,5 +1,6 @@
 var settings = require('./etc/settings.json');
 var express = require('express');
+var _ = require("underscore");
 var Queue = require('./lib/queue').Queue;
 var tool = require('./lib/tool');
 var logger = require('./lib/logger').logger(settings.log);
@@ -41,16 +42,24 @@ app.post('/weibo/:action', function(req, res){
 	var result = JSON.stringify({result:"receive", taskId:taskId});
 	response(res, result);
 
-	data.taskId = taskId;
-	data.receiveTime = tool.getDateString();
-	data.action = action;
-	var ids = data.accountIds.match(/\d+/g);
-	ids.forEach(function(id){
-		data.accountId = id;
-		taskQueue.push(data);	
+	var receiveTime = tool.getDateString();
+	valid.tasks.forEach(function(task){
+		task.receiveTime = receiveTime;
+		task.action = action;
+		task.taskId = taskId;
+		taskQueue.push(task);	
 	});
-	var log = action + "\t" + data.fromApp + "\t" + data.accountIds + "\t" + data.status + "\t" + taskId;
+
+	var keys = _.keys(data);
+	keys = _.sortBy(keys, function(key){
+		return key;
+	});
+
+	var log = action + "\t" + taskId;
+	for(var i = 0; i < keys.length; i++){
+		log += "\t" + keys[i] + ":" + data[keys[i]];
+	}
 	logger.info(log);
 });
-app.listen(8080);
+app.listen(settings.server.port);
 console.log("weibo server start at " + tool.getDateString());
