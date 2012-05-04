@@ -24,7 +24,7 @@ module.exports = {
                 var err = {message:"the repostDbId is not exist"};
                 callback(err, context);
             }else{
-                context.task.repostDbId = context.task.id = result[0].repost_id;
+                context.task.repostId = context.task.id = result[0].repost_id;
                 context.task.accountId = result[0].account_id;
                 callback(null, context);
             }
@@ -53,6 +53,10 @@ module.exports = {
             report.msg = context.err.message;
         }
         return report;
+    },
+
+    log:function(context){
+        return context.task.repostId;
     },
 
     error:function(err, context){

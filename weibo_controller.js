@@ -27,9 +27,8 @@ worker.on('error', function(err, context){
 		task.retry += 1;
 		taskQueue.push(task);
 	}else{
-		runLog(err, context);
+		log(context, handler.log(context));
 		var report = handlers[context.task.action].report(context);
-		console.log(report);
 		reportQueue.push(report);
 	}
 	getTask();
@@ -37,11 +36,13 @@ worker.on('error', function(err, context){
 
 
 worker.on("finish", function(context){
-	runLog(null, context);
+	var handler = handlers[context.task.action];
+	log(context, handler.log(context));
 	getTask();
-	var report = handlers[context.task.action].report(context);
+	var report = handler.report(context);
 	reportQueue.push(report);
 });
+
 var aq = async.queue(worker.work, 5);
 
 var getTask = function(){
@@ -49,12 +50,7 @@ var getTask = function(){
 		return;
 	}
 	taskQueue.pop(function(err, task){
-		if(err){
-			runLog(err);
-			return;
-		}
-
-		if(!task){
+		if(err || !task){
 			return;
 		}
 
@@ -68,29 +64,16 @@ taskQueue.on('hasTask', function(){
 	getTask();
 });
 
-
-var runLog = function(err, context){
-	var result = err ? 'ERROR' : 'SUCCESS';
-	context = context || {};
-	var resp = context.response || {};
-	var task = context.task || {};
-	var account = context.account || {};;  
-	task = task || {};
-	var taskId = task.taskId || '-';
-	var action = task.action || '-';
-	var img = task.img || '-';
-	var accountId = task.accountId || '-';
-	var weiboId = task.weiboId || '-';
-	var status = task.status || '-';
-	var newId = resp.id || '-';
-	var url = resp.t_url || '-';
-	var msg = err ? err.message : '-';
-	var fromApp = task.fromApp || '-'
-
-	status = decodeURI(status);
-	
-	var log = [result, action, fromApp, taskId, accountId, weiboId, 
-				newId, url, status, img, msg].join("\t");
-	runLogger.info(log);
+var log = function(contxt, info){
+	var task = context.task;
+	var msg = [context.result, task.action, task.fromApp, task.taskId, task.accountId].join("\t");
+	if(info){
+		msg += "\t" + info;
+	}
+	if(context.err){
+		msg += "\t" + context.err.message;
+	}
+	runLogger.info(msg);
 }
+
 console.log("weibo task controller start at " + tool.getDateString());

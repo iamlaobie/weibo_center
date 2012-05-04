@@ -13,7 +13,7 @@ module.exports = {
 			return {message:"accountIds's format is not valid", result:"error"};
 		}
 
-		if(!data.weiboDbId || typeof data.weiboDbId != 'string'){
+		if(!data.weiboDbId && !data.weiboId){
 			return {message:"weiboId's format is not valid", result:"error"};
 		}
 
@@ -28,15 +28,29 @@ module.exports = {
 	},
 
 	prepare:function(context, callback){
-		db.getWeibo(context.task.weiboDbId, function(err, result){
-			if(!result || result.length  == 0){
-				var err = {message:"70000:the weiboDbId is not exist"};
-				callback(err, context);
-			}else{
-				context.task.weiboId = context.task.id = result[0].weibo_id;
-				callback(null, context);
-			}
-		});
+		if(context.task.weiboId){
+			context.task.id = context.task.weiboId;
+			db.getWeiboByWeiboId(context.task.weiboId, function(err, result){
+				if(!result || result.length  == 0){
+					var err = {message:"the weiboId is not exist"};
+					callback(err, context);
+				}else{
+					context.task.weiboDbId = result[0].id;
+					callback(null, context);
+				}
+			});
+		}else{
+			db.getWeibo(context.task.weiboDbId, function(err, result){
+				if(!result || result.length  == 0){
+					var err = {message:"70000:the weiboDbId is not exist"};
+					callback(err, context);
+				}else{
+					context.task.weiboId = context.task.id = result[0].weibo_id;
+					callback(null, context);
+				}
+			});
+		}
+		
 	},
 
 	finish:function(context, callback){
@@ -75,6 +89,17 @@ module.exports = {
 		}
 		return report;
 	},
+
+	log:function(context){
+		var task = context.task;
+		var report = this.report(context);
+		var weiboId = task.weiboId || '-';
+		var repostId = task.repostId || '-';
+		var weiboUrl = report.weiboUrl || '-';
+		var log = [task.status, repostId, weiboId, weiboUrl];
+		return log.join("\t");
+	},
+
 
 	error:function(err, context){
 		if(err.message.match(/timeout/i)){

@@ -6,12 +6,13 @@ var tool = require('./lib/tool');
 var logger = require('./lib/logger').logger(settings.log);
 var redis = require("redis");
 var handlers = require("./handlers");
-
+//var form = require("connect-form");
 
 var redisClient = redis.createClient(settings.redis.port, settings.redis.host);
 redisClient.select(settings.redis.db);
 var taskQueue = new Queue(settings.taskQueue.name, redisClient);
 
+//var form = require("connect-form");
 var app = express.createServer();
 app.use(express.bodyParser());
 
@@ -32,7 +33,7 @@ app.post('/weibo/:action', function(req, res){
 	
 	var handler = handlers[action];
 	var data = req.body;
-	var valid = handler.receive(data);
+	var valid = handler.receive(data, req);
 	if(valid.result != 'ok'){
 		response(res, valid);
 		return;	

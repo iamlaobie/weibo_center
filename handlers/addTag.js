@@ -42,6 +42,10 @@ module.exports = {
         return report;
     },
 
+    log:function(context){
+        return context.task.tags;
+    },
+
     error:function(err, context){
         if(err.message.match(/timeout/i)){
             return "retry";

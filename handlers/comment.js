@@ -2,20 +2,25 @@ var _ = require("underscore");
 var db = require('../lib/db');
 var tool = require('../lib/tool');
 module.exports = {
-    apiAction:"destroy",
+    apiAction:"comment",
+
     receive:function(data){
-        if(!data.weiboDbIds || !data.weiboDbIds.match(/^\d+(\,\d+)*$/)){
-            return {message:"weiboDbIds's format is not valid", result:"error"};
+
+        if(!data.accountId || !data.accountId.match(/^\d+$/)){
+            return {message:"accountId's format is not valid", result:"error"};
         }
 
-        var ids = data.weiboDbIds.match(/\d+/g);
-        var tasks = [];
-        for(var i = 0; i < ids.length; i++){
-            var task = _.clone(data);
-            task.weiboDbId = ids[i];
-            task.action = '';
-            tasks.push(task);
+        if(!data.weiboDbId || typeof data.weiboDbId != 'string'){
+            return {message:"weiboDbId's format is not valid", result:"error"};
         }
+
+        if(!data.comment){
+            return {message:"comment is empty", result:"error"};
+        }
+
+        var tasks = [];
+        var task = _.clone(data);
+        tasks.push(task);
         return {result:"ok",tasks:tasks};
     },
 
@@ -26,21 +31,30 @@ module.exports = {
                 callback(err, context);
             }else{
                 context.task.weiboId = context.task.id = result[0].weibo_id;
-                context.task.accountId = result[0].account_id;
                 callback(null, context);
             }
         });
     },
 
     finish:function(context, callback){
+        var resp = context.response;
         var task = context.task;
-        db.deleteWeibo(task.weiboDbId, function(err, result){
+        task.comment = context.rawTask.comment;
+
+        var account = context.account; 
+        var status = task.status || '';
+        db.insertComment(task.weiboDbId, resp.id, account.id, task.comment, function(err, result){
+            if(!err){
+                context.commnetDbId = result.insertId;
+            }
             callback(err, context);
         });
     }, 
 
     report:function(context){
+        var resp = context.response;
         var task = context.task;
+
         var report = {
             taskId:task.taskId,
             action:task.action,
@@ -52,14 +66,22 @@ module.exports = {
         report.msg = '';
         if(context.err){
             report.msg = context.err.message;
+        }else{
+            report.commentDbId = context.commentDbId;
+            report.commentId = resp.id.toString();
         }
         return report;
     },
 
     log:function(context){
         var task = context.task;
-        return task.weiboId;
+        var report = this.report(context);
+        var weiboId = task.weiboId || '-';
+        var commentId = report.commentId || '-';
+        var log = [task.comment, commentId, weiboId];
+        return log.join("\t");
     },
+
 
     error:function(err, context){
         if(err.message.match(/timeout/i)){
@@ -70,7 +92,7 @@ module.exports = {
             return "limit";
         }
 
-        if(err.message.match(/mysql/) || err.message.match(/^20101/)){
+        if(err.message.match(/^400(13|25)/)){
             return "drop";
         }
 

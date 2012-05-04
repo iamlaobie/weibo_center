@@ -1,9 +1,28 @@
 var _ = require("underscore");
 var db = require('../lib/db');
 var tool = require('../lib/tool');
+var hittp = require("../lib/hihttp");
+var fs = require("fs");
+var settings = require("../etc/settings.json");
 module.exports = {
 	apiAction:"update",
-	receive:function(data){
+
+	pic:function(data, req){
+		if(data.picBase64){
+			var buf = new Buffer(data.picBase64, 'base64');
+			var picBase64Data = buf.toString('binary');
+			var pic = settings.pic + '/' + tool.uniqString();
+			fs.writeFileSync(pic, picBase64Data, 'binary');
+			return pic;
+		}
+
+		if(req.files && req.files.pic){
+			return req.files.pic.path;
+		}
+		return "";
+	},
+
+	receive:function(data, req){
 		if(!data.accountIds){
 			return {message:"no accountIds", result:"error"};
 		}
@@ -12,12 +31,11 @@ module.exports = {
 			return {message:"accountIds's format is not valid", result:"error"};
 		}
 
-		if(!data.status && !data.img){
+		data.status = data.status || '';
+		data.pic = this.pic(data, req);
+		if(!data.status && !data.pic){
 			return {message:"no text or img", result:"error"};
 		}
-
-		data.status = data.status || '';
-		data.img = data.img || '';
 		var ids = data.accountIds.match(/\d+/g);
 		var tasks = [];
 		for(var i = 0; i < ids.length; i++){
@@ -36,12 +54,12 @@ module.exports = {
 		var resp = context.response;
 		var task = context.task;
 		var account = context.account; 
-		task.img = task.img || '';
+		task.pic = task.pic || '';
 		task.taskId = task.taskId || '';
 		task.status = task.status || '';
 		var weibo = {
 			status:decodeURI(task.status),
-			img:task.img,
+			pic:task.pic,
 			id:resp.id.toString(),
 			weiboUrl:resp.t_url,
 			accountId:account.id,
@@ -78,6 +96,17 @@ module.exports = {
 	    	body.weiboDbId = context.weiboDbId;
 	    }
 	    return body;
+	},
+
+	log:function(context){
+		var task = context.task;
+		var report = this.report(context);
+		var weiboId = report.weiboId || '-';
+		var weiboDbId = report.weiboDbId || '-';
+		var weiboUrl = report.weiboUrl || '-';
+		var pic = task.pic || '-';
+		var log = [task.status, pic, weiboId, weiboUrl, weiboDbId, report.msg];
+		return log.join("\t");
 	},
 
 	error:function(err, context){
