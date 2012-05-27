@@ -20,6 +20,7 @@ module.exports = {
     },
 
     prepare:function(context, callback){
+        context.task.user_id = context.task.weiboUserId;
         callback(null,  context);
     },
 
