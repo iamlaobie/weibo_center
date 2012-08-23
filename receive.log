@@ -1,3 +1,7 @@
-2012-04-22 00:00:28.298 - info: [11678]send	10001	1,2,3	this is a test	d28d42eb63a8a07043264bc2c73c49b5
-2012-04-22 00:01:15.926 - info: [11686]send	10001	1,2,3	this is a test	254d31d20d4e8a6d43ef5fd3cff021dd
-2012-04-22 00:04:24.830 - info: [11741]send	10001	1,2,3	this is a test	1dceade646813e69854a895192a05baa
+2012-08-05 22:20:13.690 - info: [4564]update	2012080522201368808428	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:23:41.166 - info: [6496]update	2012080522234116412494	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:24:18.081 - info: [6496]update	2012080522241808067177	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:25:41.344 - info: [6496]update	2012080522254134342378	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:25:51.855 - info: [6496]update	2012080522255185506322	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:28:43.585 - info: [6496]update	2012080522284358427135	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too
+2012-08-05 22:29:33.579 - info: [7056]update	2012080522293357644994	accountId:2	action:update	fromApp:stockradar	pic:	status:this is a test too too too too too too too too

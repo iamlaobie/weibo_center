@@ -1,17 +1,12 @@
-var update = require(__dirname + '/update');
-var repost = require(__dirname + '/repost');
-var deleteWeibo = require(__dirname + '/deleteWeibo');
-var deleteRepost = require(__dirname + '/deleteRepost');
-var addTag = require(__dirname + '/addTag');
-var comment = require(__dirname + '/comment');
-var follow = require(__dirname + '/follow');
+var fs = require('fs');
+var handlers = {};
+var files = fs.readdirSync(__dirname);
+files.forEach(function(file) {
+    if(!file.match(/\.js$/) || file == 'base.js' || file == 'index.js') {
+        return;
+    }
+    var handler = file.replace(/\.js$/, '');
+    handlers[handler] = require("./" + file);
+});
 
-module.exports = {
-	update:update,
-    repost:repost,
-    deleteWeibo:deleteWeibo,
-    deleteRepost:deleteRepost,
-    addTag:addTag,
-    comment:comment,
-    follow:follow
-};
+module.exports = handlers;

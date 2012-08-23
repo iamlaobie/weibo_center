@@ -4,18 +4,13 @@ var tool = require('../lib/tool');
 module.exports = {
     apiAction:"destroy",
     receive:function(data){
-        if(!data.repostDbIds || !data.repostDbIds.match(/^\d+(\,\d+)*$/)){
-            return {message:"repostDbIds's format is not valid", result:"error"};
+        if(!data.repostDbId || !data.repostDbId.match(/^\d+$/)){
+            return {message:"repostDbId's format is not valid", result:"error"};
         }
 
-        var ids = data.repostDbIds.match(/\d+/g);
-        var tasks = [];
-        for(var i = 0; i < ids.length; i++){
-            var task = _.clone(data);
-            task.repostDbId = ids[i];
-            tasks.push(task);
-        }
-        return {result:"ok",tasks:tasks};
+        var task = _.clone(data);
+        task.repostDbId = ids[i];
+        return {result:"ok",task:task};
     },
 
     prepare:function(context, callback){

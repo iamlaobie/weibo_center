@@ -17,11 +17,8 @@ module.exports = {
         if(!data.comment){
             return {message:"comment is empty", result:"error"};
         }
-
-        var tasks = [];
         var task = _.clone(data);
-        tasks.push(task);
-        return {result:"ok",tasks:tasks};
+        return {result:"ok",task:task};
     },
 
     prepare:function(context, callback){

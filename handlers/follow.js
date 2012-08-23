@@ -13,10 +13,8 @@ module.exports = {
             return {message:"weiboUserId's format is not valid", result:"error"};
         }
 
-        var tasks = [];
         var task = _.clone(data);
-        tasks.push(task);
-        return {result:"ok",tasks:tasks};
+        return {result:"ok",task:task};
     },
 
     prepare:function(context, callback){

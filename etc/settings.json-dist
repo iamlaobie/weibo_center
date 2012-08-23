@@ -1,8 +1,13 @@
 {
+    "server":{
+        "server_name":"local.gupiao123.cn",
+        "port":8899,
+        "urlRoot":"http://local.gupiao123.cn:8899/"
+    },
 	"retry":5,
 	"redis":{
 		"port":6379,
-		"host":"localhost",
+		"host":"192.168.88.33",
 		"db":1
 	},
 	"mysql":{
@@ -16,10 +21,20 @@
 		"name":"weibo_task",
 		"pollInterval":2000
 	},
-	"apis":{
-		"tsina":{
-			"appkey":"888888888",
-			"secret":"888888888888888888888888888888888888"
+    "reportQueue":{
+        "name":"report_task"
+    },
+	"providers":{
+		"sina":{
+			"appkey":"8888888",
+			"secret":"888888888888888888888",
+            "urlRoot":"http://api.weibo.com",
+            "authUri":"/oauth2/authorize",
+            "accessTokenUri":"/oauth2/access_token"
+		},
+        "qq":{
+			"appkey":"8888888888",
+			"secret":"8888888888888888888888888"
 		}
 	}
-}
+} 

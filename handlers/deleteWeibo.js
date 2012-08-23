@@ -4,19 +4,14 @@ var tool = require('../lib/tool');
 module.exports = {
     apiAction:"destroy",
     receive:function(data){
-        if(!data.weiboDbIds || !data.weiboDbIds.match(/^\d+(\,\d+)*$/)){
-            return {message:"weiboDbIds's format is not valid", result:"error"};
+        if(!data.weiboDbId || !data.weiboDbId.match(/^\d+$/)){
+            return {message:"weiboDbId's format is not valid", result:"error"};
         }
-
-        var ids = data.weiboDbIds.match(/\d+/g);
-        var tasks = [];
-        for(var i = 0; i < ids.length; i++){
-            var task = _.clone(data);
-            task.weiboDbId = ids[i];
-            task.action = '';
-            tasks.push(task);
-        }
-        return {result:"ok",tasks:tasks};
+        var task = _.clone(data);
+        task.weiboDbId = ids[i];
+        task.action = '';
+        tasks.push(task);
+        return {result:"ok",task:task};
     },
 
     prepare:function(context, callback){

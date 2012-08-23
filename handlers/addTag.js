@@ -13,8 +13,8 @@ module.exports = {
             return {message:"tags is empty", result:"error"};
         }
 
-        var tasks  = [{tags:data.tags,accountId:data.accountId, fromApp:data.fromApp}];
-        return {result:"ok",tasks:tasks};
+        var task  = {tags:data.tags,accountId:data.accountId, fromApp:data.fromApp};
+        return {result:"ok",task:task};
     },
 
     prepare:function(context, callback){

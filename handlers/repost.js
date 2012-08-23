@@ -6,25 +6,19 @@ module.exports = {
 
 	receive:function(data){
 		if(!data.accountIds){
-			return {message:"no accountIds", result:"error"};
+			return {message:"no accountId", result:"error"};
 		}
 
-		if(!data.accountIds.match(/^\d+(\,\d+)*$/)){
-			return {message:"accountIds's format is not valid", result:"error"};
+		if(!data.accountIds.match(/^\d+$/)){
+			return {message:"accountId's format is not valid", result:"error"};
 		}
 
 		if(!data.weiboDbId && !data.weiboId){
 			return {message:"weiboId's format is not valid", result:"error"};
 		}
-
-		var ids = data.accountIds.match(/\d+/g);
-		var tasks = [];
-		for(var i = 0; i < ids.length; i++){
-			var task = _.clone(data);
-			task.accountId = ids[i];
-			tasks.push(task);
-		}
-		return {result:"ok",tasks:tasks};
+    	var task = _.clone(data);
+		task.accountId = ids[i];
+		return {result:"ok",task:task};
 	},
 
 	prepare:function(context, callback){
